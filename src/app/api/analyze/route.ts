@@ -5,7 +5,23 @@ import type { AnalysisResults } from '@/types/analysis'
 
 export async function POST(request: Request) {
   try {
-    const { url, maxResults = 100 } = await request.json()
+    console.log('Received request in analyze route')
+    const body = await request.text()
+    console.log('Raw request body:', body)
+    
+    let data
+    try {
+      data = JSON.parse(body)
+      console.log('Parsed request data:', data)
+    } catch (e) {
+      console.error('Failed to parse request body:', e)
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
+    const { url, maxResults = 100 } = data
     
     // Extract video ID from URL
     const videoId = extractVideoId(url)
@@ -15,6 +31,8 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    console.log('Processing video ID:', videoId)
 
     // Get video details and comments
     const [videoDetails, comments] = await Promise.all([

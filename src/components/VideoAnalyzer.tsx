@@ -77,17 +77,19 @@ export function VideoAnalyzer() {
     setError('')
 
     try {
+      console.log('Sending request with body:', { url, maxResults: commentCount })
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          url, 
-          maxResults: Math.min(commentCount + DEFAULT_BATCH_SIZE, MAX_COMMENTS) 
-        }),
+        body: JSON.stringify({ url, maxResults: commentCount }),
       })
+
+      console.log('Received response:', response.status)
       const data = await response.json()
+      console.log('Parsed response data:', data)
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to analyze video')
       }
