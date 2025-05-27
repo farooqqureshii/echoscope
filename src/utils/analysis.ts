@@ -13,11 +13,17 @@ async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
       'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ inputs }),
+    body: JSON.stringify({
+      inputs: inputs,
+      options: {
+        wait_for_model: true
+      }
+    }),
   })
 
   if (!response.ok) {
-    throw new Error(`HuggingFace API error: ${response.statusText}`)
+    const error = await response.text()
+    throw new Error(`HuggingFace API error: ${error}`)
   }
 
   return response.json()
@@ -25,13 +31,16 @@ async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
 
 export async function getCommentEmbedding(text: string): Promise<number[]> {
   const result = await callHuggingFaceAPI(EMBEDDING_MODEL, text)
-  return result[0]
+  // The embedding model returns a 2D array, we want the first embedding
+  return Array.isArray(result) ? result[0] : result
 }
 
 export async function analyzeSentiment(text: string): Promise<number> {
   const result = await callHuggingFaceAPI(SENTIMENT_MODEL, text)
+  // The sentiment model returns an array of results
+  const sentiment = Array.isArray(result) ? result[0] : result
   // Convert sentiment to a number between -1 and 1
-  return result[0].label === 'POSITIVE' ? result[0].score : -result[0].score
+  return sentiment.label === 'POSITIVE' ? sentiment.score : -sentiment.score
 }
 
 export async function clusterComments(comments: Comment[]): Promise<Cluster[]> {
