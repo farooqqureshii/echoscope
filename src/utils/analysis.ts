@@ -6,7 +6,7 @@ const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models'
 const EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 const SENTIMENT_MODEL = 'distilbert-base-uncased-finetuned-sst-2-english'
 
-async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
+async function callHuggingFaceAPI(model: string, inputs: string | string[], isEmbedding: boolean = false) {
   const response = await fetch(`${HUGGINGFACE_API_URL}/${model}`, {
     method: 'POST',
     headers: {
@@ -14,7 +14,10 @@ async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      inputs: inputs,
+      inputs: isEmbedding ? {
+        source_sentence: inputs,
+        sentences: [inputs]
+      } : inputs,
       options: {
         wait_for_model: true
       }
@@ -30,7 +33,7 @@ async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
 }
 
 export async function getCommentEmbedding(text: string): Promise<number[]> {
-  const result = await callHuggingFaceAPI(EMBEDDING_MODEL, text)
+  const result = await callHuggingFaceAPI(EMBEDDING_MODEL, text, true)
   // The embedding model returns a 2D array, we want the first embedding
   return Array.isArray(result) ? result[0] : result
 }
