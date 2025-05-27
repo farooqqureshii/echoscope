@@ -4,10 +4,10 @@ import type { Comment, Cluster } from '@/types/analysis'
 // Configure transformers to use memory-only storage
 env.useBrowserCache = false
 env.allowLocalModels = false
-env.cacheDir = undefined
-env.localModelPath = undefined
-env.remoteHost = undefined
-env.remotePathTemplate = undefined
+env.cacheDir = ''
+env.localModelPath = ''
+env.remoteHost = ''
+env.remotePathTemplate = ''
 
 // Initialize the models
 let embeddingModel: any = null
