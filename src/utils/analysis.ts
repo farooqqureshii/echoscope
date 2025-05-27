@@ -47,16 +47,20 @@ export async function getCommentEmbedding(text: string): Promise<number[]> {
     
     // Handle different response formats
     if (Array.isArray(result)) {
-      // If it's an array, take the first element
+      // If it's an array of numbers, wrap it in another array
+      if (typeof result[0] === 'number') {
+        return [result[0]]
+      }
+      // If it's an array of arrays, take the first element
       return result[0]
     } else if (result && typeof result === 'object') {
       // If it's an object with similarity scores
       if (result.similarity_scores) {
-        return result.similarity_scores
+        return Array.isArray(result.similarity_scores) ? result.similarity_scores : [result.similarity_scores]
       }
       // If it's an object with embeddings
       if (result.embeddings) {
-        return result.embeddings[0]
+        return Array.isArray(result.embeddings[0]) ? result.embeddings[0] : [result.embeddings[0]]
       }
     }
     
