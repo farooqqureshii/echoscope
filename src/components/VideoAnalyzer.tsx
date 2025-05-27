@@ -167,7 +167,7 @@ export function VideoAnalyzer() {
                 <div className="text-lg font-bold mb-1">{results.clusters.length} Clusters</div>
                 <div className="text-sm text-gray-400 mb-1">Most common topics: <span className="text-white font-semibold">{results.clusters.map(c => c.theme).slice(0, 3).join(', ')}</span></div>
                 <div className="text-sm text-gray-400 mb-1">Overall sentiment: <span className={results.clusters.reduce((a, c) => a + c.sentiment, 0) / results.clusters.length > 0 ? 'text-green-400' : 'text-red-400'}>{(results.clusters.reduce((a, c) => a + c.sentiment, 0) / results.clusters.length).toFixed(2)}</span></div>
-                <div className="text-sm text-gray-400">Diversity score: <span className="text-blue-400 font-semibold">{results.diversityScore.toFixed(2)}</span></div>
+                <div className="text-sm text-gray-400">Diversity score: <span className="text-blue-400 font-semibold">{results.diversityScore != null ? results.diversityScore.toFixed(2) : 'N/A'}</span></div>
               </div>
               <div className="flex flex-col gap-1">
                 <div className="text-xs uppercase tracking-widest text-purple-400 font-semibold">Bias Metrics</div>
@@ -203,7 +203,7 @@ export function VideoAnalyzer() {
                 <h3 className="text-lg font-semibold">Diversity Score</h3>
               </div>
               <p className="text-3xl font-bold text-blue-500">
-                {results.diversityScore.toFixed(2)}
+                {results.diversityScore != null ? results.diversityScore.toFixed(2) : 'N/A'}
               </p>
               {showTooltip === 'diversityScore' && (
                 <div className="absolute left-0 right-0 -bottom-2 translate-y-full bg-gray-900 text-white p-2 rounded text-sm z-10 shadow-lg">
