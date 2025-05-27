@@ -1,9 +1,13 @@
 import { pipeline, env } from '@xenova/transformers'
 import type { Comment, Cluster } from '@/types/analysis'
 
-// Configure transformers to use memory storage
+// Configure transformers to use memory-only storage
 env.useBrowserCache = false
 env.allowLocalModels = false
+env.cacheDir = undefined
+env.localModelPath = undefined
+env.remoteHost = undefined
+env.remotePathTemplate = undefined
 
 // Initialize the models
 let embeddingModel: any = null
@@ -13,7 +17,8 @@ async function getEmbeddingModel() {
   if (!embeddingModel) {
     embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
       quantized: true,
-      cache_dir: undefined
+      cache_dir: undefined,
+      local_files_only: true
     })
   }
   return embeddingModel
@@ -23,7 +28,8 @@ async function getSentimentModel() {
   if (!sentimentModel) {
     sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english', {
       quantized: true,
-      cache_dir: undefined
+      cache_dir: undefined,
+      local_files_only: true
     })
   }
   return sentimentModel
