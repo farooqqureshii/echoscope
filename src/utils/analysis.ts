@@ -191,11 +191,35 @@ function kMeansClustering(embeddings: number[][], k: number): number[][] {
   }
 }
 
-function cosineDistance(a: number[], b: number[]): number {
+function cosineDistance(a: number[] | any, b: number[] | any): number {
   try {
+    // Ensure inputs are arrays
+    if (!Array.isArray(a) || !Array.isArray(b)) {
+      console.error('Invalid inputs to cosineDistance:', { a, b })
+      return 1 // Maximum distance for invalid inputs
+    }
+
+    // Ensure arrays have same length
+    if (a.length !== b.length) {
+      console.error('Arrays must have same length:', { aLength: a.length, bLength: b.length })
+      return 1
+    }
+
+    // Ensure all elements are numbers
+    if (!a.every(x => typeof x === 'number') || !b.every(x => typeof x === 'number')) {
+      console.error('Arrays must contain only numbers')
+      return 1
+    }
+
     const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0)
     const normA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0))
     const normB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0))
+
+    // Handle edge cases
+    if (normA === 0 || normB === 0) {
+      return 1 // Maximum distance for zero vectors
+    }
+
     return 1 - dotProduct / (normA * normB)
   } catch (error) {
     console.error('Error calculating cosine distance:', error)
