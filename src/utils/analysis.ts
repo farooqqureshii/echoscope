@@ -1,47 +1,35 @@
-import { pipeline, env } from '@xenova/transformers'
 import type { Comment, Cluster } from '@/types/analysis'
 
-// Configure transformers to use memory-only storage
-env.useBrowserCache = false
-env.allowLocalModels = false
-env.cacheDir = ''
-env.localModelPath = ''
-env.remoteHost = 'https://huggingface.co'
-env.remotePathTemplate = '{model}/resolve/main/{file}'
+const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models'
 
-// Initialize the models
-let embeddingModel: any = null
-let sentimentModel: any = null
+// Models we'll use
+const EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
+const SENTIMENT_MODEL = 'distilbert-base-uncased-finetuned-sst-2-english'
 
-async function getEmbeddingModel() {
-  if (!embeddingModel) {
-    embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
-      quantized: true,
-      cache_dir: undefined
-    })
+async function callHuggingFaceAPI(model: string, inputs: string | string[]) {
+  const response = await fetch(`${HUGGINGFACE_API_URL}/${model}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ inputs }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`HuggingFace API error: ${response.statusText}`)
   }
-  return embeddingModel
-}
 
-async function getSentimentModel() {
-  if (!sentimentModel) {
-    sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english', {
-      quantized: true,
-      cache_dir: undefined
-    })
-  }
-  return sentimentModel
+  return response.json()
 }
 
 export async function getCommentEmbedding(text: string): Promise<number[]> {
-  const model = await getEmbeddingModel()
-  const result = await model(text, { pooling: 'mean', normalize: true })
-  return Array.from(result.data)
+  const result = await callHuggingFaceAPI(EMBEDDING_MODEL, text)
+  return result[0]
 }
 
 export async function analyzeSentiment(text: string): Promise<number> {
-  const model = await getSentimentModel()
-  const result = await model(text)
+  const result = await callHuggingFaceAPI(SENTIMENT_MODEL, text)
   // Convert sentiment to a number between -1 and 1
   return result[0].label === 'POSITIVE' ? result[0].score : -result[0].score
 }
@@ -144,7 +132,7 @@ function areClustersEqual(a: number[][], b: number[][]): boolean {
 export async function generateClusterTheme(comments: Comment[], embeddings?: number[][]): Promise<{ keyPhrase: string, headline: string }> {
   // --- Key Phrase: Most frequent bigram/trigram ---
   const stopwords = new Set([
-    'the','and','for','are','but','not','with','you','that','this','have','from','they','your','was','what','when','will','just','about','would','there','their','could','should','them','then','than','some','more','like','into','only','over','such','very','much','even','know','been','can','who','out','get','has','all','too','got','our','had','did','why','how','his','her','him','she','himself','herself','my','mine','we','us','were','where','which','because','on','in','at','to','of','is','it','as','by','an','be','or','if','so','do','no','yes','up','down','off','a','i','me','he','see','say','said','also','am','im','u','rt','its','dont','does','doesnt','cant','wont','youre','youve','youll','ill','im','ive','didnt','wasnt','arent','isnt','aint','lets','lets','youre','youve','the','a','an','in','on','at','to','of','is','it','as','by','be','or','if','so','do','no','yes','up','down','off','out','get','has','all','too','got','our','had','did','why','how','his','her','him','she','himself','herself','my','mine','we','us','were','where','which','because','see','say','said','also','am','im','u','rt','its','dont','does','doesnt','cant','wont','youre','youve','youll','ill','im','ive','didnt','wasnt','arent','isnt','aint','lets','lets','youre','youve'
+    'the','and','for','are','but','not','with','you','that','this','have','from','they','your','was','what','when','will','just','about','would','there','their','could','should','them','then','than','some','more','like','into','only','over','such','very','much','even','know','been','can','who','out','get','has','all','too','got','our','had','did','why','how','his','her','him','she','himself','herself','my','mine','we','us','were','where','which','because','on','in','at','to','of','is','it','as','by','an','be','or','if','so','do','no','yes','up','down','off','a','i','me','he','see','say','said','also','am','im','u','rt','its','dont','does','doesnt','cant','wont','youre','youve','youll','ill','im','ive','didnt','wasnt','arent','isnt','aint','lets','lets','youre','youve'
   ])
   const ngrams: Record<string, number> = {}
   comments.forEach(c => {
