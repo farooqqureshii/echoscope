@@ -6,8 +6,8 @@ env.useBrowserCache = false
 env.allowLocalModels = false
 env.cacheDir = ''
 env.localModelPath = ''
-env.remoteHost = ''
-env.remotePathTemplate = ''
+env.remoteHost = 'https://huggingface.co'
+env.remotePathTemplate = '{model}/resolve/main/{file}'
 
 // Initialize the models
 let embeddingModel: any = null
@@ -15,7 +15,7 @@ let sentimentModel: any = null
 
 async function getEmbeddingModel() {
   if (!embeddingModel) {
-    embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
+    embeddingModel = await pipeline('feature-extraction', 'sentence-transformers/all-MiniLM-L6-v2', {
       quantized: true,
       cache_dir: undefined
     })
@@ -25,7 +25,7 @@ async function getEmbeddingModel() {
 
 async function getSentimentModel() {
   if (!sentimentModel) {
-    sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english', {
+    sentimentModel = await pipeline('sentiment-analysis', 'distilbert-base-uncased-finetuned-sst-2-english', {
       quantized: true,
       cache_dir: undefined
     })
