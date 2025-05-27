@@ -17,8 +17,7 @@ async function getEmbeddingModel() {
   if (!embeddingModel) {
     embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
       quantized: true,
-      cache_dir: undefined,
-      local_files_only: true
+      cache_dir: undefined
     })
   }
   return embeddingModel
@@ -28,8 +27,7 @@ async function getSentimentModel() {
   if (!sentimentModel) {
     sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english', {
       quantized: true,
-      cache_dir: undefined,
-      local_files_only: true
+      cache_dir: undefined
     })
   }
   return sentimentModel
