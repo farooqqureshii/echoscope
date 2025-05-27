@@ -5,7 +5,7 @@ import type { AnalysisResults } from '@/types/analysis'
 
 export async function POST(request: Request) {
   try {
-    const { url } = await request.json()
+    const { url, maxResults = 100 } = await request.json()
     
     // Extract video ID from URL
     const videoId = extractVideoId(url)
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     // Get video details and comments
     const [videoDetails, comments] = await Promise.all([
       getVideoDetails(videoId),
-      getVideoComments(videoId)
+      getVideoComments(videoId, maxResults)
     ])
 
     // Perform analysis

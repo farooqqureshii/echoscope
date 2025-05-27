@@ -48,7 +48,7 @@ export function VideoAnalyzer() {
     setResults(null)
 
     try {
-      const response = await fetch(`/api/analyze?maxResults=${commentCount}`, {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,12 +77,15 @@ export function VideoAnalyzer() {
     setError('')
 
     try {
-      const response = await fetch(`/api/analyze?maxResults=${Math.min(commentCount + DEFAULT_BATCH_SIZE, MAX_COMMENTS)}`, {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ 
+          url, 
+          maxResults: Math.min(commentCount + DEFAULT_BATCH_SIZE, MAX_COMMENTS) 
+        }),
       })
       const data = await response.json()
       if (!response.ok) {
