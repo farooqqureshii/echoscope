@@ -1,6 +1,5 @@
-# EchoScope
+# ⚖️ EchoScope
 
-![EchoScope Logo](public/globe.svg)
 
 > **Analyze YouTube content diversity and bias with advanced AI.**
 
