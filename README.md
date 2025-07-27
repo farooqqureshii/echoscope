@@ -1,7 +1,5 @@
 # EchoScope
 
-![EchoScope Logo](public/globe.svg)
-
 > **Analyze YouTube content diversity and bias with advanced AI.**
 
 EchoScope is an interactive web app that lets you analyze the diversity, sentiment, and bias of YouTube video comments using state-of-the-art AI models. Gain insights into the clusters of discussion, detect bias, and visualize the spectrum of opinions in any video community.
